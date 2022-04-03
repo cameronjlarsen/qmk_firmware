@@ -15,6 +15,7 @@
  */
 #include QMK_KEYBOARD_H
 #include "features/caps_word.h"
+#include "features/oneshot.h"
 
 enum layers {
     _QWERTY = 0,
@@ -22,11 +23,23 @@ enum layers {
     NAV,
     FUN,
 };
+
+enum keycodes {
+	// Custom oneshot mod implementation with no timers
+	OS_SHFT = SAFE_RANGE,
+	OS_CTRL,
+	OS_ALT,
+	OS_GUI
+};
+
 //  Aliases for readability
 #define QWERTY DF(_QWERTY)
+#define LA_SYM TT(SYM)
+#define LA_NAV LT(NAV, KC_TAB)
+#define LA_FUN MO(FUN)
 
-#define OS_SFT OSM(MOD_LSFT)
-#define OS_CTRL OSM(MOD_LCTL)
+#define OSM_SHFT OSM(MOD_LSFT)
+#define OSM_CTRL OSM(MOD_LCTL)
 #define SFT_TAB LSFT_T(KC_TAB)
 #define A_LEFT LALT_T(KC_LEFT)
 #define A_RGHT LALT_T(KC_RGHT)
@@ -76,10 +89,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_QWERTY] = LAYOUT(
-     XXXXXXX , KC_Q  ,  KC_W  ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,  KC_U ,  KC_I ,   KC_O ,   KC_P , XXXXXXX,
-     XXXXXXX , KC_A  ,  KC_S  ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,  KC_J ,  KC_K ,   KC_L , KC_ENT , XXXXXXX,
-     XXXXXXX , KC_Z  ,  KC_X  ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, XXXXXXX,     XXXXXXX,KC_RBRC, KC_N, KC_M  ,KC_COMM, KC_DOT , KC_SLSH, XXXXXXX,
-                                KC_MUTE, XXXXXXX, OS_CTRL, OS_SFT,LT(NAV,KC_TAB),TT(SYM), KC_SPC,TT(FUN),XXXXXXX, KC_APP
+     XXXXXXX , KC_Q  ,  KC_W  ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y  ,  KC_U  ,  KC_I  ,  KC_O  ,  KC_P  , XXXXXXX,
+     XXXXXXX , KC_A  ,  KC_S  ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H  ,  KC_J  ,  KC_K  ,  KC_L  , KC_ENT , XXXXXXX,
+     XXXXXXX , KC_Z  ,  KC_X  ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, XXXXXXX,  XXXXXXX ,KC_RBRC ,  KC_N  ,  KC_M  , KC_COMM, KC_DOT , KC_SLSH, XXXXXXX,
+                                KC_MUTE, XXXXXXX,OSM_CTRL,OSM_SHFT, LA_NAV ,   LA_SYM , KC_SPC , LA_FUN , XXXXXXX, KC_APP
     ),
     
 /*
@@ -120,7 +133,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        |  GUI |  Alt | Ctrl | Shift| Esc  |                              |   ←  |  ↓   |   ↑  |   →  | Bksp |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      | Cut  | Copy | Paste|      |      |      |  |      |      |      |      |      |      |      |        |
+ * |        |      | Cut  | Copy | Paste|      |      |      |  |      |      |      |      |      |      | Del  |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -128,8 +141,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [NAV] = LAYOUT(
       _______, _______, _______, _______, _______, _______,                                     KC_HOME, KC_PGUP, KC_PGDN,  KC_END, KC_PSCR, _______,
-      _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT,  KC_ESC,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, KC_BSPC, _______,
-      _______, _______, C(KC_X), C(KC_C), C(KC_V), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+      _______, OS_GUI , OS_ALT , OS_CTRL, OS_SHFT,  KC_ESC,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, KC_BSPC, _______,
+      _______, _______, C(KC_X), C(KC_C), C(KC_V), _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_DEL , _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
 
@@ -149,7 +162,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [FUN] = LAYOUT(
       _______,  KC_F9 ,  KC_F10,  KC_F11,  KC_F12, _______,                                     _______, _______, _______, _______, _______, _______,
-      _______,  KC_F5 ,  KC_F6 ,  KC_F7 ,  KC_F8 , _______,                                     _______, KC_RSFT, KC_RCTL, KC_LALT, KC_RGUI, _______,
+      _______,  KC_F5 ,  KC_F6 ,  KC_F7 ,  KC_F8 , _______,                                     _______, OS_SHFT, OS_CTRL, OS_ALT , OS_GUI , _______,
       _______,  KC_F1 ,  KC_F2 ,  KC_F3 ,  KC_F4 , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
@@ -174,12 +187,46 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 //     ),
 };
+ 
+// One shot mods
+bool is_oneshot_cancel_key(uint16_t keycode) {
+    switch (keycode) {
+    case LA_SYM:
+    case LA_NAV:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool is_oneshot_ignored_key(uint16_t keycode) {
+    switch (keycode) {
+    case LA_SYM:
+    case LA_NAV:
+    case OSM_SHFT:
+    case OS_SHFT:
+    case OS_CTRL:
+    case OS_ALT:
+    case OS_GUI:
+        return true;
+    default:
+        return false;
+    }
+}
+
+oneshot_state os_shft_state = os_up_unqueued;
+oneshot_state os_ctrl_state = os_up_unqueued;
+oneshot_state os_alt_state = os_up_unqueued;
+oneshot_state os_gui_state = os_up_unqueued;
+
+
 
 enum combo_events {
     CAPS_COMBO,
     // Other combos...
     COMBO_LENGTH
 };
+
 uint16_t COMBO_LEN = COMBO_LENGTH;
 
 const uint16_t PROGMEM caps_combo[] = {KC_F, KC_J, COMBO_END};
@@ -204,7 +251,22 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_caps_word(keycode, record)) { return false; }
   // Your macros ...
-
+  update_oneshot(
+       &os_shft_state, KC_LSFT, OS_SHFT,
+       keycode, record
+    );
+  update_oneshot(
+	&os_ctrl_state, KC_LCTL, OS_CTRL,
+	keycode, record
+    );
+  update_oneshot(
+	&os_alt_state, KC_LALT, OS_ALT,
+        keycode, record
+    );
+  update_oneshot(
+        &os_gui_state, KC_LGUI, OS_GUI,
+        keycode, record
+    );
   return true;
 }
 
