@@ -18,7 +18,7 @@
 #include "features/oneshot.h"
 
 enum layers {
-    _QWERTY = 0,
+    QWERTY = 0,
     SYM,
     NAV,
     FUN,
@@ -33,9 +33,8 @@ enum keycodes {
 };
 
 //  Aliases for readability
-#define QWERTY DF(_QWERTY)
-#define LA_SYM TT(SYM)
-#define LA_NAV LT(NAV, KC_TAB)
+#define LA_SYM LT(SYM, KC_TAB)
+#define LA_NAV MO(NAV)
 #define LA_FUN MO(FUN)
 
 #define OSM_SHFT OSM(MOD_LSFT)
@@ -75,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * - Enter is moved to ; location and ; is moved to Sym layer
  * - ESC can be accessed by NAV and G
  * - BKSP is accessed by NAV and Enter
- * - Tab is accessed by holding NAV layer
+ * - Tab is accessed by tapping SYM layer
  * 
  * ,-------------------------------------------.                              ,-------------------------------------------.
  * |        |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |        |
@@ -85,10 +84,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |        |   Z  |   X  |   C  |   V  |   B  |      |      |  |      |      |   N  |   M  | ,  < | . >  | /  ? |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        | Mute |      | OSM  |  OSM | Nav  |  | Sym  | Space| Fun  |      | Menu |
- *                        |      |      | Ctrl | Shift| Tab  |  |      |      |      |      |      |
+ *                        |      |      | Ctrl | Shift|      |  | Tab  |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
-    [_QWERTY] = LAYOUT(
+    [QWERTY] = LAYOUT(
      XXXXXXX , KC_Q  ,  KC_W  ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y  ,  KC_U  ,  KC_I  ,  KC_O  ,  KC_P  , XXXXXXX,
      XXXXXXX , KC_A  ,  KC_S  ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H  ,  KC_J  ,  KC_K  ,  KC_L  , KC_ENT , XXXXXXX,
      XXXXXXX , KC_Z  ,  KC_X  ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, XXXXXXX,  XXXXXXX ,KC_RBRC ,  KC_N  ,  KC_M  , KC_COMM, KC_DOT , KC_SLSH, XXXXXXX,
@@ -204,6 +203,7 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
     case LA_SYM:
     case LA_NAV:
     case OSM_SHFT:
+    case OSM_CTRL:
     case OS_SHFT:
     case OS_CTRL:
     case OS_ALT:
@@ -312,7 +312,7 @@ void oled_task_user(void) {
         // Host Keyboard Layer Status
         oled_write_P(PSTR("Layer: "), false);
         switch (get_highest_layer(layer_state | default_layer_state)) {
-            case _QWERTY:
+            case QWERTY:
                 oled_write_P(PSTR("QWERTY\n"), false);
                 break;
             case SYM:
