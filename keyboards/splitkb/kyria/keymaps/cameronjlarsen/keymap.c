@@ -83,15 +83,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * |        |   Z  |   X  |   C  |   V  |   B  |      |      |  |      |      |   N  |   M  | ,  < | . >  | /  ? |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        | Mute |      | OSM  |  OSM | Nav  |  | Sym  | Space| Fun  |      | Menu |
- *                        |      |      | Ctrl | Shift|      |  | Tab  |      |      |      |      |
+ *                        | Mute |      | OSM  |  OSM | Nav  |  | Sym  | Space| OSM  |      | Menu |
+ *                        |      |      | Ctrl | Shift|      |  | Tab  |      | GUI  |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
     [QWERTY] = LAYOUT(
      XXXXXXX , KC_Q  ,  KC_W  ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y  ,  KC_U  ,  KC_I  ,  KC_O  ,  KC_P  , XXXXXXX,
      XXXXXXX , KC_A  ,  KC_S  ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H  ,  KC_J  ,  KC_K  ,  KC_L  , KC_ENT , XXXXXXX,
      XXXXXXX , KC_Z  ,  KC_X  ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, XXXXXXX,  XXXXXXX ,KC_RBRC ,  KC_N  ,  KC_M  , KC_COMM, KC_DOT , KC_SLSH, XXXXXXX,
-                                KC_MUTE, XXXXXXX,OSM_CTRL,OSM_SHFT, LA_NAV ,   LA_SYM , KC_SPC , LA_FUN , XXXXXXX, KC_APP
+                                KC_MUTE, XXXXXXX,OSM_CTRL,OSM_SHFT, LA_NAV ,   LA_SYM , KC_SPC , OS_GUI , XXXXXXX, KC_APP
     ),
     
 /*
@@ -293,6 +293,10 @@ bool caps_word_press_user(uint16_t keycode) {
 void matrix_scan_user(void) {
   caps_word_task();
   // Other tasks...
+}
+
+layer_state_t layer_state_set_user(layer_state_t state){
+  return update_tri_layer_state(state, SYM, NAV, FUN);
 }
 
 #ifdef OLED_ENABLE
